@@ -1,0 +1,63 @@
+// backend/prisma/schema.prisma
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ==================== User Model ====================
+model User {
+  id        String   @id @default(uuid())
+  name      String
+  email     String   @unique
+  password  String
+  createdAt DateTime @default(now())
+
+  roadmaps Roadmap[]
+
+  @@map("users")
+}
+
+// ==================== Quiz Model ====================
+model Quiz {
+  id          String   @id @default(uuid())
+  title       String
+  category    String
+  description String
+  createdAt   DateTime @default(now())
+
+  questions Question[]
+
+  @@map("quizzes")
+}
+
+// ==================== Question Model ====================
+model Question {
+  id            String   @id @default(uuid())
+  quizId        String
+  questionText  String
+  options       Json
+  correctOption String
+  topic         String
+
+  quiz Quiz @relation(fields: [quizId], references: [id], onDelete: Cascade)
+
+  @@map("questions")
+}
+
+// ==================== Roadmap Model ====================
+model Roadmap {
+  id        String   @id @default(uuid())
+  userId    String
+  category  String
+  stepsData Json
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("roadmaps")
+}
